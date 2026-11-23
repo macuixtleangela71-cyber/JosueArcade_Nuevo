@@ -51,3 +51,10 @@ dependencies {
     implementation 'com.badlogicgames.gdx:gdx:1.12.1'
     implementation 'com.badlogicgames.gdx:gdx-backend-android:1.12.1'
 }
+
+// ESTO ES LO NUEVO: Forzamos a que Kotlin espere a que los assets estén listos
+tasks.whenTaskAdded { task ->
+    if (task.name == 'compileDebugKotlin') {
+        task.dependsOn 'mergeDebugAssets'
+    }
+}
