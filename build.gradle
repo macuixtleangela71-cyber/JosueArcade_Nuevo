@@ -24,12 +24,13 @@ android {
         versionName "1.0"
     }
 
+    // AQUÍ ESTÁ LA MAGIA: Le decimos dónde están las cosas
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['.'] 
-            assets.srcDirs = ['assets'] 
-            res.srcDirs = ['res']
+            manifest.srcFile 'app/src/main/AndroidManifest.xml'
+            java.srcDirs = ['app/src/main/java']
+            assets.srcDirs = ['app/src/main/assets']
+            res.srcDirs = ['app/src/main/res']
         }
     }
 
@@ -50,11 +51,4 @@ repositories {
 dependencies {
     implementation 'com.badlogicgames.gdx:gdx:1.12.1'
     implementation 'com.badlogicgames.gdx:gdx-backend-android:1.12.1'
-}
-
-// ¡ESTA ES LA SOLUCIÓN! Le decimos a Kotlin que espere a las tareas de Assets
-tasks.whenTaskAdded { task ->
-    if (task.name == 'compileDebugKotlin') {
-        task.mustRunAfter tasks.matching { it.name.contains('Assets') }
-    }
 }
