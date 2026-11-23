@@ -1,3 +1,6 @@
+// ESTA LÍNEA VA HASTA ARRIBA, FUERA DE TODO
+org.gradle.parallel=false
+
 buildscript {
     repositories {
         google()
@@ -11,9 +14,6 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
-
-// ¡ESTA ES LA LÍNEA MÁGICA QUE ARREGLA EL ERROR!
-org.gradle.parallel=false
 
 android {
     namespace 'com.josue.game'
