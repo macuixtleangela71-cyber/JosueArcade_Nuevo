@@ -1,6 +1,3 @@
-// ESTA LÍNEA VA HASTA ARRIBA, FUERA DE TODO
-org.gradle.parallel=false
-
 buildscript {
     repositories {
         google()
