@@ -1,3 +1,5 @@
+package com.josue.game
+
 enum class TipoItem { MONEDA, SKIN, POTENCIADOR }
 
 class Item(

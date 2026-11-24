@@ -1,9 +1,7 @@
-
 package com.josue.game
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -11,41 +9,35 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Intersector
 
 class MainGame : ApplicationAdapter() {
-    lateinit var camera: OrthographicCamera
-    lateinit var shapeRenderer: ShapeRenderer
-    lateinit var batch: SpriteBatch
-    
-    lateinit var josue: Josue
-    lateinit var nivel: Level
-    lateinit var ui: UI_Juego
-    lateinit var particulas: GestorParticulas
-    lateinit var guardado: Guardado
-    lateinit var sonido: Sonido
-    lateinit var inputManager: InputManager
-    
-    var estadoActual = GameData.ESTADO_JUGANDO
-    var misMonedas = 0
+    private lateinit var camera: OrthographicCamera
+    private lateinit var shapeRenderer: ShapeRenderer
+    private lateinit var batch: SpriteBatch
+
+    private lateinit var josue: Josue
+    private lateinit var nivel: Level
+    private lateinit var ui: UI_Juego
+    private lateinit var particulas: GestorParticulas
+    private lateinit var guardado: Guardado
+    private lateinit var sonido: Sonido
+    private lateinit var inputManager: InputManager
+
+    private var estadoActual = GameData.ESTADO_JUGANDO
+    private var misMonedas = 0
 
     override fun create() {
-        // ¡AQUÍ ESTÁ EL CAZADOR DE ERRORES!
-        Thread.setDefaultUncaughtExceptionHandler(CrashHandler())
-
-        camera = OrthographicCamera()
-        camera.setToOrtho(false, 800f, 480f)
+        camera = OrthographicCamera().apply { setToOrtho(false, 800f, 480f) }
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
-        
-        sonido = Sonido()
-        sonido.cargar()
-        
+
+        sonido = Sonido().also { it.cargar() }
         guardado = Guardado()
         misMonedas = guardado.obtenerMonedas()
-        
+
         josue = Josue(100f, 100f)
         nivel = Level()
         ui = UI_Juego()
         particulas = GestorParticulas()
-        
+
         inputManager = InputManager(josue, particulas, ui, sonido, camera.viewportWidth)
         Gdx.input.inputProcessor = inputManager
     }
@@ -55,7 +47,6 @@ class MainGame : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         val dt = Gdx.graphics.deltaTime
-
         if (estadoActual == GameData.ESTADO_JUGANDO) {
             actualizarFisica(dt)
             particulas.actualizar(dt)
@@ -68,19 +59,20 @@ class MainGame : ApplicationAdapter() {
         batch.projectionMatrix = camera.combined
 
         nivel.draw(shapeRenderer, batch)
-
         val frameActual = josue.getCurrentFrame()
-        val flipX = !josue.isFacingRight
-        
         batch.begin()
         batch.draw(
             frameActual,
             josue.bounds.x - 15f,
-            josue.bounds.y, 
+            josue.bounds.y,
             64f,
             josue.bounds.height * 1.2f,
-            0, 0, frameActual.texture.width, frameActual.texture.height,
-            flipX, false
+            0,
+            0,
+            frameActual.texture.width,
+            frameActual.texture.height,
+            !josue.isFacingRight,
+            false
         )
         batch.end()
 
@@ -88,7 +80,7 @@ class MainGame : ApplicationAdapter() {
         ui.dibujar(misMonedas)
     }
 
-    fun actualizarFisica(dt: Float) {
+    private fun actualizarFisica(dt: Float) {
         josue.update(dt)
 
         josue.bounds.x += josue.velocity.x * dt
@@ -103,39 +95,38 @@ class MainGame : ApplicationAdapter() {
         josue.velocity.y += GameData.GRAVEDAD * dt
         josue.bounds.y += josue.velocity.y * dt
         josue.isGrounded = false
-
         for (plataforma in nivel.plataformas) {
             if (Intersector.overlaps(josue.bounds, plataforma)) {
                 if (josue.velocity.y <= 0) {
                     josue.bounds.y = plataforma.y + plataforma.height
                     josue.velocity.y = 0f
                     josue.isGrounded = true
-                } else if (josue.velocity.y > 0) {
+                } else {
                     josue.bounds.y = plataforma.y - josue.bounds.height
                     josue.velocity.y = 0f
                 }
             }
         }
-        
+
         for (moneda in nivel.monedas) {
             if (moneda.width > 0f && Intersector.overlaps(josue.bounds, moneda)) {
                 moneda.set(0f, -100f, 0f, 0f)
                 misMonedas++
                 guardado.guardarMonedas(misMonedas)
-                if (this::sonido.isInitialized) sonido.reproducirMoneda()
+                sonido.reproducirMoneda()
                 ui.mostrarMensaje("+1 Moneda!")
             }
         }
 
         for (enemigo in nivel.enemigos) {
             if (Intersector.overlaps(josue.bounds, enemigo)) {
-                ui.mostrarMensaje("No mames! Te chocaste.")
-                if (this::sonido.isInitialized) sonido.reproducirGolpe()
+                ui.mostrarMensaje("Te chocaste.")
+                sonido.reproducirGolpe()
                 josue.bounds.setPosition(100f, 100f)
                 josue.velocity.set(0f, 0f)
             }
         }
-        
+
         if (josue.bounds.y < -100f) {
             josue.bounds.setPosition(100f, 100f)
             josue.velocity.set(0f, 0f)
@@ -143,9 +134,11 @@ class MainGame : ApplicationAdapter() {
     }
 
     override fun dispose() {
-        shapeRenderer.dispose()
-        batch.dispose()
-        ui.dispose()
-        sonido.dispose()
+        if (this::nivel.isInitialized) nivel.dispose()
+        if (this::josue.isInitialized) josue.dispose()
+        if (this::ui.isInitialized) ui.dispose()
+        if (this::sonido.isInitialized) sonido.dispose()
+        if (this::shapeRenderer.isInitialized) shapeRenderer.dispose()
+        if (this::batch.isInitialized) batch.dispose()
     }
 }

@@ -1,3 +1,5 @@
+package com.josue.game
+
 class GestorMisiones {
     var monedasRecolectadas = 0
     val metaMonedas = 5
@@ -5,8 +7,6 @@ class GestorMisiones {
 
     fun recolectarMoneda() {
         monedasRecolectadas++
-        if (monedasRecolectadas >= metaMonedas) {
-            nivelCompletado = true
-        }
+        if (monedasRecolectadas >= metaMonedas) nivelCompletado = true
     }
 }
