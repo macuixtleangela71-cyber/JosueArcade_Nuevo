@@ -61,18 +61,18 @@ class MainGame : ApplicationAdapter() {
         nivel.draw(shapeRenderer, batch)
         val frameActual = josue.getCurrentFrame()
         batch.begin()
+        // Usa la sobrecarga de TextureRegion y conserva el volteo horizontal del personaje.
         batch.draw(
             frameActual,
             josue.bounds.x - 15f,
             josue.bounds.y,
+            32f,
+            0f,
             64f,
             josue.bounds.height * 1.2f,
-            0,
-            0,
-            frameActual.texture.width,
-            frameActual.texture.height,
-            !josue.isFacingRight,
-            false
+            if (josue.isFacingRight) 1f else -1f,
+            1f,
+            0f
         )
         batch.end()
 
